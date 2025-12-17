@@ -1,9 +1,37 @@
-import { useState } from 'react';
-import { Cloud, Search, AlertCircle } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Cloud } from 'lucide-react';
+import SearchBar from './components/SearchBar';
+import WeatherCard from './components/WeatherCard';
+import ErrorMessage from './components/ErrorMessage';
+import LoadingSpinner from './components/LoadingSpinner';
+import { fetchWeatherData } from './services/weatherApi';
+import { DEFAULT_CITY } from './utils/constants';
 
 function App() {
-  const [loading] = useState(false);
-  const [error] = useState(null);
+  const [weatherData, setWeatherData] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const handleSearch = async (city) => {
+    setLoading(true);
+    setError(null);
+
+    const { data, error: apiError } = await fetchWeatherData(city);
+
+    if (apiError) {
+      setError(apiError);
+      setWeatherData(null);
+    } else {
+      setWeatherData(data);
+      setError(null);
+    }
+
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    handleSearch(DEFAULT_CITY);
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-400 via-purple-500 to-purple-600 py-8 px-4">
@@ -21,69 +49,15 @@ function App() {
         </header>
 
         <main className="max-w-3xl mx-auto">
-          <div className="bg-white/95 backdrop-blur rounded-2xl shadow-2xl p-8 mb-8">
-            <div className="flex gap-3">
-              <div className="flex-1 relative">
-                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-                <input
-                  type="text"
-                  placeholder="Search for a city..."
-                  disabled
-                  className="w-full pl-12 pr-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:border-blue-500 transition-colors"
-                />
-              </div>
-              <button
-                disabled
-                className="px-6 py-3 bg-blue-500 text-white rounded-xl font-semibold hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Search
-              </button>
-            </div>
-          </div>
+          <SearchBar onSearch={handleSearch} loading={loading} />
 
-          <div className="bg-white/95 backdrop-blur rounded-2xl shadow-2xl p-8">
-            <div className="text-center">
-              <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full mb-4">
-                <Cloud className="text-white" size={40} />
-              </div>
-              <h2 className="text-2xl font-bold text-gray-800 mb-3">
-                Welcome to Weather Dashboard! 🌤️
-              </h2>
-              <p className="text-gray-600 text-lg mb-6">
-                Day 1: Project structure is ready!
-              </p>
-              
-              <div className="bg-blue-50 rounded-xl p-6 text-left">
-                <h3 className="font-bold text-blue-900 mb-3">✅ Today's Progress:</h3>
-                <ul className="space-y-2 text-blue-800">
-                  <li className="flex items-start gap-2">
-                    <span className="text-green-500 mt-1">✓</span>
-                    <span>Project initialized with Vite + React</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-green-500 mt-1">✓</span>
-                    <span>Component structure planned</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-green-500 mt-1">✓</span>
-                    <span>API service layer ready</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-green-500 mt-1">✓</span>
-                    <span>Beautiful UI foundation created</span>
-                  </li>
-                </ul>
-              </div>
-
-              <div className="mt-6 text-sm text-gray-500">
-                <p>Coming tomorrow: Search functionality & live weather data! 🚀</p>
-              </div>
-            </div>
-          </div>
+          {loading && <LoadingSpinner />}
+          {error && <ErrorMessage message={error} />}
+          {weatherData && !loading && <WeatherCard weather={weatherData} />}
         </main>
 
         <footer className="text-center mt-12 text-white/80">
-          <p>Day 1 of 8 | Building with React & OpenWeatherMap API</p>
+          <p>Day 2 of 8 | Live Weather Data Working! 🎉</p>
         </footer>
       </div>
     </div>
