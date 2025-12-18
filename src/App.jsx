@@ -1,9 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Cloud } from 'lucide-react';
 import SearchBar from './components/SearchBar';
 import WeatherCard from './components/WeatherCard';
 import ErrorMessage from './components/ErrorMessage';
 import LoadingSpinner from './components/LoadingSpinner';
+import RefreshButton from './components/RefreshButton';
+import TemperatureToggle from './components/TemperatureToggle';
 import { fetchWeatherData } from './services/weatherApi';
 import { DEFAULT_CITY } from './utils/constants';
 
@@ -11,8 +13,11 @@ function App() {
   const [weatherData, setWeatherData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [currentCity, setCurrentCity] = useState(DEFAULT_CITY);
+  const [lastUpdated, setLastUpdated] = useState(null);
+  const [temperatureUnit, setTemperatureUnit] = useState('celsius');
 
-  const handleSearch = async (city) => {
+  const handleSearch = useCallback(async (city) => {
     setLoading(true);
     setError(null);
 
@@ -23,15 +28,40 @@ function App() {
       setWeatherData(null);
     } else {
       setWeatherData(data);
+      setCurrentCity(city);
+      setLastUpdated(new Date());
       setError(null);
     }
 
     setLoading(false);
+  }, []);
+
+  const handleRefresh = () => {
+    if (currentCity) {
+      handleSearch(currentCity);
+    }
   };
 
+  const handleTemperatureToggle = (unit) => {
+    setTemperatureUnit(unit);
+  };
+
+  // Load default city on mount
   useEffect(() => {
     handleSearch(DEFAULT_CITY);
-  }, []);
+  }, [handleSearch]);
+
+  // Auto-refresh every 5 minutes
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (currentCity && !loading) {
+        console.log('Auto-refreshing weather data...');
+        handleSearch(currentCity);
+      }
+    }, 5 * 60 * 1000); // 5 minutes
+
+    return () => clearInterval(interval);
+  }, [currentCity, loading, handleSearch]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-400 via-purple-500 to-purple-600 py-8 px-4">
@@ -51,13 +81,34 @@ function App() {
         <main className="max-w-3xl mx-auto">
           <SearchBar onSearch={handleSearch} loading={loading} />
 
+          {weatherData && !loading && (
+            <div className="flex flex-col sm:flex-row gap-4 items-stretch sm:items-center">
+              <div className="flex-1">
+                <RefreshButton 
+                  onRefresh={handleRefresh} 
+                  loading={loading}
+                  lastUpdated={lastUpdated}
+                />
+              </div>
+              <TemperatureToggle 
+                unit={temperatureUnit}
+                onToggle={handleTemperatureToggle}
+              />
+            </div>
+          )}
+
           {loading && <LoadingSpinner />}
           {error && <ErrorMessage message={error} />}
-          {weatherData && !loading && <WeatherCard weather={weatherData} />}
+          {weatherData && !loading && (
+            <WeatherCard 
+              weather={weatherData} 
+              temperatureUnit={temperatureUnit}
+            />
+          )}
         </main>
 
         <footer className="text-center mt-12 text-white/80">
-          <p>Day 2 of 8 | Live Weather Data Working! 🎉</p>
+          <p>Day 3 of 8 | Auto-refresh & Enhanced Features! 🔄</p>
         </footer>
       </div>
     </div>

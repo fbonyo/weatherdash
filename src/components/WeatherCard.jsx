@@ -1,6 +1,7 @@
 import { Cloud, Droplets, Wind, Thermometer, CloudRain, CloudSnow, CloudDrizzle, Sun, CloudFog } from 'lucide-react';
+import { formatTemperature, getTemperatureUnit } from '../utils/helpers';
 
-const WeatherCard = ({ weather }) => {
+const WeatherCard = ({ weather, temperatureUnit }) => {
   const getWeatherIcon = (condition) => {
     const iconProps = { size: 64, className: "text-white" };
     
@@ -14,9 +15,10 @@ const WeatherCard = ({ weather }) => {
 
   const weatherCondition = weather.weather[0].main.toLowerCase();
   const description = weather.weather[0].description;
+  const tempUnit = getTemperatureUnit(temperatureUnit);
 
   return (
-    <div className="bg-white/95 backdrop-blur rounded-2xl shadow-2xl p-8">
+    <div className="bg-white/95 backdrop-blur rounded-2xl shadow-2xl p-8 animate-fadeIn">
       {/* City Name */}
       <div className="text-center mb-6">
         <h2 className="text-3xl font-bold text-gray-800">
@@ -26,16 +28,16 @@ const WeatherCard = ({ weather }) => {
       </div>
 
       {/* Weather Icon & Temperature */}
-      <div className="flex items-center justify-center mb-8">
-        <div className="bg-gradient-to-br from-blue-400 to-purple-500 rounded-full p-6 mr-6">
+      <div className="flex items-center justify-center mb-8 flex-wrap gap-6">
+        <div className="bg-gradient-to-br from-blue-400 to-purple-500 rounded-full p-6">
           {getWeatherIcon(weatherCondition)}
         </div>
-        <div>
+        <div className="text-center">
           <div className="text-6xl font-bold text-gray-800">
-            {Math.round(weather.main.temp)}°C
+            {formatTemperature(weather.main.temp, temperatureUnit)}{tempUnit}
           </div>
           <div className="text-gray-500 text-lg">
-            Feels like {Math.round(weather.main.feels_like)}°C
+            Feels like {formatTemperature(weather.main.feels_like, temperatureUnit)}{tempUnit}
           </div>
         </div>
       </div>
@@ -80,11 +82,15 @@ const WeatherCard = ({ weather }) => {
       <div className="mt-6 pt-6 border-t border-gray-200 grid grid-cols-2 gap-4 text-center">
         <div>
           <p className="text-gray-500 text-sm">Min Temp</p>
-          <p className="text-xl font-semibold text-gray-800">{Math.round(weather.main.temp_min)}°C</p>
+          <p className="text-xl font-semibold text-gray-800">
+            {formatTemperature(weather.main.temp_min, temperatureUnit)}{tempUnit}
+          </p>
         </div>
         <div>
           <p className="text-gray-500 text-sm">Max Temp</p>
-          <p className="text-xl font-semibold text-gray-800">{Math.round(weather.main.temp_max)}°C</p>
+          <p className="text-xl font-semibold text-gray-800">
+            {formatTemperature(weather.main.temp_max, temperatureUnit)}{tempUnit}
+          </p>
         </div>
       </div>
     </div>
