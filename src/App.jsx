@@ -2,15 +2,18 @@ import { useState, useEffect, useCallback } from 'react';
 import { Cloud } from 'lucide-react';
 import SearchBar from './components/SearchBar';
 import WeatherCard from './components/WeatherCard';
+import ForecastSection from './components/ForecastSection';
 import ErrorMessage from './components/ErrorMessage';
 import LoadingSpinner from './components/LoadingSpinner';
 import RefreshButton from './components/RefreshButton';
 import TemperatureToggle from './components/TemperatureToggle';
-import { fetchWeatherData } from './services/weatherApi';
+import { fetchWeatherData, fetchForecastData } from './services/weatherApi';
+import { processForecastData } from './utils/helpers';
 import { DEFAULT_CITY } from './utils/constants';
 
 function App() {
   const [weatherData, setWeatherData] = useState(null);
+  const [forecastData, setForecastData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [currentCity, setCurrentCity] = useState(DEFAULT_CITY);
@@ -21,13 +24,23 @@ function App() {
     setLoading(true);
     setError(null);
 
-    const { data, error: apiError } = await fetchWeatherData(city);
+    // Fetch current weather
+    const { data: weatherResult, error: weatherError } = await fetchWeatherData(city);
+    
+    // Fetch forecast data
+    const { data: forecastResult, error: forecastError } = await fetchForecastData(city);
 
-    if (apiError) {
-      setError(apiError);
+    if (weatherError || forecastError) {
+      setError(weatherError || forecastError);
       setWeatherData(null);
+      setForecastData(null);
     } else {
-      setWeatherData(data);
+      setWeatherData(weatherResult);
+      
+      // Process forecast data
+      const processedForecast = processForecastData(forecastResult.list);
+      setForecastData(processedForecast);
+      
       setCurrentCity(city);
       setLastUpdated(new Date());
       setError(null);
@@ -99,16 +112,26 @@ function App() {
 
           {loading && <LoadingSpinner />}
           {error && <ErrorMessage message={error} />}
+          
           {weatherData && !loading && (
-            <WeatherCard 
-              weather={weatherData} 
-              temperatureUnit={temperatureUnit}
-            />
+            <>
+              <WeatherCard 
+                weather={weatherData} 
+                temperatureUnit={temperatureUnit}
+              />
+              
+              {forecastData && forecastData.length > 0 && (
+                <ForecastSection 
+                  forecasts={forecastData}
+                  temperatureUnit={temperatureUnit}
+                />
+              )}
+            </>
           )}
         </main>
 
         <footer className="text-center mt-12 text-white/80">
-          <p>Day 3 of 8 | Auto-refresh & Enhanced Features! 🔄</p>
+          <p>Day 4 of 8 | 7-Day Weather Forecast Added! 📅</p>
         </footer>
       </div>
     </div>
