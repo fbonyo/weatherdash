@@ -3,12 +3,14 @@ import { Cloud } from 'lucide-react';
 import SearchBar from './components/SearchBar';
 import WeatherCard from './components/WeatherCard';
 import ForecastSection from './components/ForecastSection';
+import RecentSearches from './components/RecentSearches';
 import ErrorMessage from './components/ErrorMessage';
 import LoadingSpinner from './components/LoadingSpinner';
 import RefreshButton from './components/RefreshButton';
 import TemperatureToggle from './components/TemperatureToggle';
 import { fetchWeatherData, fetchForecastData } from './services/weatherApi';
 import { processForecastData } from './utils/helpers';
+import { getRecentSearches, addRecentSearch, clearRecentSearches } from './utils/localStorage';
 import { DEFAULT_CITY } from './utils/constants';
 
 function App() {
@@ -19,6 +21,13 @@ function App() {
   const [currentCity, setCurrentCity] = useState(DEFAULT_CITY);
   const [lastUpdated, setLastUpdated] = useState(null);
   const [temperatureUnit, setTemperatureUnit] = useState('celsius');
+  const [recentSearches, setRecentSearches] = useState([]);
+
+  // Load recent searches on mount
+  useEffect(() => {
+    const searches = getRecentSearches();
+    setRecentSearches(searches);
+  }, []);
 
   const handleSearch = useCallback(async (city) => {
     setLoading(true);
@@ -44,6 +53,10 @@ function App() {
       setCurrentCity(city);
       setLastUpdated(new Date());
       setError(null);
+
+      // Add to recent searches
+      const updatedSearches = addRecentSearch(city);
+      setRecentSearches(updatedSearches);
     }
 
     setLoading(false);
@@ -57,6 +70,13 @@ function App() {
 
   const handleTemperatureToggle = (unit) => {
     setTemperatureUnit(unit);
+  };
+
+  const handleClearHistory = () => {
+    const cleared = clearRecentSearches();
+    if (cleared) {
+      setRecentSearches([]);
+    }
   };
 
   // Load default city on mount
@@ -93,6 +113,12 @@ function App() {
 
         <main className="max-w-3xl mx-auto">
           <SearchBar onSearch={handleSearch} loading={loading} />
+
+          <RecentSearches 
+            searches={recentSearches}
+            onSelectCity={handleSearch}
+            onClearHistory={handleClearHistory}
+          />
 
           {weatherData && !loading && (
             <div className="flex flex-col sm:flex-row gap-4 items-stretch sm:items-center">
@@ -131,7 +157,7 @@ function App() {
         </main>
 
         <footer className="text-center mt-12 text-white/80">
-          <p>Day 4 of 8 | 7-Day Weather Forecast Added! 📅</p>
+          <p>Day 5 of 8 | Recent Searches & Local Storage Added! 💾</p>
         </footer>
       </div>
     </div>
