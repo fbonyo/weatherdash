@@ -1,14 +1,14 @@
 import { Cloud, CloudRain, CloudSnow, CloudDrizzle, Sun, CloudFog, Droplets, Wind } from 'lucide-react';
 import { formatTemperature, getTemperatureUnit } from '../utils/helpers';
 
-const ForecastCard = ({ forecast, temperatureUnit }) => {
+const ForecastCard = ({ forecast, temperatureUnit, theme }) => {
   const getWeatherIcon = (condition) => {
-    const iconProps = { size: 40, className: "text-blue-500" };
+    const iconProps = { size: 40, className: theme === 'dark' ? 'text-blue-400' : 'text-blue-500' };
     
     if (condition.includes('Rain')) return <CloudRain {...iconProps} />;
     if (condition.includes('Snow')) return <CloudSnow {...iconProps} />;
     if (condition.includes('Drizzle')) return <CloudDrizzle {...iconProps} />;
-    if (condition.includes('Clear')) return <Sun {...iconProps} className="text-yellow-500" />;
+    if (condition.includes('Clear')) return <Sun {...iconProps} className={theme === 'dark' ? 'text-yellow-400' : 'text-yellow-500'} />;
     if (condition.includes('Fog') || condition.includes('Mist')) return <CloudFog {...iconProps} />;
     return <Cloud {...iconProps} />;
   };
@@ -28,34 +28,35 @@ const ForecastCard = ({ forecast, temperatureUnit }) => {
   };
 
   const tempUnit = getTemperatureUnit(temperatureUnit);
+  const isDark = theme === 'dark';
 
   return (
-    <div className="bg-white rounded-xl shadow-lg p-5 min-w-[200px] flex-shrink-0 hover:shadow-xl transition-shadow">
+    <div className={`${isDark ? 'bg-gray-700/90' : 'bg-white'} rounded-xl shadow-lg p-5 min-w-[200px] flex-shrink-0 hover:shadow-xl transition-shadow`}>
       {/* Date */}
       <div className="text-center mb-3">
-        <p className="font-bold text-gray-800 text-lg">{formatDate(forecast.date)}</p>
+        <p className={`font-bold ${isDark ? 'text-white' : 'text-gray-800'} text-lg`}>{formatDate(forecast.date)}</p>
       </div>
 
       {/* Weather Icon */}
       <div className="flex justify-center mb-3">
-        <div className="bg-blue-50 rounded-full p-3">
+        <div className={`${isDark ? 'bg-gray-600' : 'bg-blue-50'} rounded-full p-3`}>
           {getWeatherIcon(forecast.condition)}
         </div>
       </div>
 
       {/* Condition */}
-      <p className="text-center text-gray-600 text-sm mb-3 font-medium">{forecast.condition}</p>
+      <p className={`text-center ${isDark ? 'text-gray-300' : 'text-gray-600'} text-sm mb-3 font-medium`}>{forecast.condition}</p>
 
       {/* Temperature */}
       <div className="flex justify-center gap-3 mb-4">
         <div className="text-center">
-          <p className="text-xs text-gray-500">High</p>
+          <p className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>High</p>
           <p className="text-xl font-bold text-red-500">
             {formatTemperature(forecast.tempMax, temperatureUnit)}{tempUnit}
           </p>
         </div>
         <div className="text-center">
-          <p className="text-xs text-gray-500">Low</p>
+          <p className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Low</p>
           <p className="text-xl font-bold text-blue-500">
             {formatTemperature(forecast.tempMin, temperatureUnit)}{tempUnit}
           </p>
@@ -63,20 +64,20 @@ const ForecastCard = ({ forecast, temperatureUnit }) => {
       </div>
 
       {/* Additional Details */}
-      <div className="border-t pt-3 space-y-2">
+      <div className={`border-t ${isDark ? 'border-gray-600' : 'border-gray-200'} pt-3 space-y-2`}>
         <div className="flex items-center justify-between text-sm">
-          <div className="flex items-center gap-1 text-gray-600">
+          <div className={`flex items-center gap-1 ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
             <Droplets size={16} />
             <span>Humidity</span>
           </div>
-          <span className="font-semibold text-gray-800">{forecast.humidity}%</span>
+          <span className={`font-semibold ${isDark ? 'text-white' : 'text-gray-800'}`}>{forecast.humidity}%</span>
         </div>
         <div className="flex items-center justify-between text-sm">
-          <div className="flex items-center gap-1 text-gray-600">
+          <div className={`flex items-center gap-1 ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
             <Wind size={16} />
             <span>Wind</span>
           </div>
-          <span className="font-semibold text-gray-800">{forecast.windSpeed} m/s</span>
+          <span className={`font-semibold ${isDark ? 'text-white' : 'text-gray-800'}`}>{forecast.windSpeed} m/s</span>
         </div>
       </div>
     </div>

@@ -1,20 +1,22 @@
-import { History, X, Trash2 } from 'lucide-react';
+import { History, Trash2 } from 'lucide-react';
 
-const RecentSearches = ({ searches, onSelectCity, onClearHistory }) => {
+const RecentSearches = ({ searches, onSelectCity, onClearHistory, theme }) => {
   if (searches.length === 0) {
     return null;
   }
 
+  const isDark = theme === 'dark';
+
   return (
-    <div className="bg-white/95 backdrop-blur rounded-2xl shadow-2xl p-6 mb-8">
+    <div className={`${isDark ? 'bg-gray-800/95' : 'bg-white/95'} backdrop-blur rounded-2xl shadow-2xl p-6 mb-8`}>
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <History className="text-gray-600" size={20} />
-          <h3 className="text-lg font-semibold text-gray-800">Recent Searches</h3>
+          <History className={isDark ? 'text-gray-300' : 'text-gray-600'} size={20} />
+          <h3 className={`text-lg font-semibold ${isDark ? 'text-white' : 'text-gray-800'}`}>Recent Searches</h3>
         </div>
         <button
           onClick={onClearHistory}
-          className="flex items-center gap-1 px-3 py-1 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+          className={`flex items-center gap-1 px-3 py-1 text-sm text-red-600 ${isDark ? 'hover:bg-red-900/30' : 'hover:bg-red-50'} rounded-lg transition-colors`}
           title="Clear history"
         >
           <Trash2 size={16} />

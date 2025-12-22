@@ -8,9 +8,11 @@ import ErrorMessage from './components/ErrorMessage';
 import LoadingSpinner from './components/LoadingSpinner';
 import RefreshButton from './components/RefreshButton';
 import TemperatureToggle from './components/TemperatureToggle';
+import ThemeToggle from './components/ThemeToggle';
 import { fetchWeatherData, fetchForecastData } from './services/weatherApi';
 import { processForecastData } from './utils/helpers';
 import { getRecentSearches, addRecentSearch, clearRecentSearches } from './utils/localStorage';
+import { getWeatherBackground, getThemePreference, saveThemePreference } from './utils/themes';
 import { DEFAULT_CITY } from './utils/constants';
 
 function App() {
@@ -22,9 +24,13 @@ function App() {
   const [lastUpdated, setLastUpdated] = useState(null);
   const [temperatureUnit, setTemperatureUnit] = useState('celsius');
   const [recentSearches, setRecentSearches] = useState([]);
+  const [theme, setTheme] = useState('light');
 
-  // Load recent searches on mount
+  // Load theme and recent searches on mount
   useEffect(() => {
+    const savedTheme = getThemePreference();
+    setTheme(savedTheme);
+    
     const searches = getRecentSearches();
     setRecentSearches(searches);
   }, []);
@@ -72,6 +78,12 @@ function App() {
     setTemperatureUnit(unit);
   };
 
+  const handleThemeToggle = () => {
+    const newTheme = theme === 'light' ? 'dark' : 'light';
+    setTheme(newTheme);
+    saveThemePreference(newTheme);
+  };
+
   const handleClearHistory = () => {
     const cleared = clearRecentSearches();
     if (cleared) {
@@ -96,8 +108,12 @@ function App() {
     return () => clearInterval(interval);
   }, [currentCity, loading, handleSearch]);
 
+  // Get dynamic background based on weather condition and theme
+  const weatherCondition = weatherData?.weather[0]?.main || '';
+  const backgroundClass = getWeatherBackground(weatherCondition, theme);
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-400 via-purple-500 to-purple-600 py-8 px-4">
+    <div className={`min-h-screen ${backgroundClass} py-8 px-4 transition-colors duration-500`}>
       <div className="max-w-6xl mx-auto">
         <header className="text-center mb-12">
           <div className="flex items-center justify-center gap-3 mb-3">
@@ -112,26 +128,33 @@ function App() {
         </header>
 
         <main className="max-w-3xl mx-auto">
-          <SearchBar onSearch={handleSearch} loading={loading} />
+          <SearchBar onSearch={handleSearch} loading={loading} theme={theme} />
 
           <RecentSearches 
             searches={recentSearches}
             onSelectCity={handleSearch}
             onClearHistory={handleClearHistory}
+            theme={theme}
           />
 
           {weatherData && !loading && (
-            <div className="flex flex-col sm:flex-row gap-4 items-stretch sm:items-center">
+            <div className="flex flex-col sm:flex-row gap-4 items-stretch sm:items-center mb-6">
               <div className="flex-1">
                 <RefreshButton 
                   onRefresh={handleRefresh} 
                   loading={loading}
                   lastUpdated={lastUpdated}
+                  theme={theme}
                 />
               </div>
               <TemperatureToggle 
                 unit={temperatureUnit}
                 onToggle={handleTemperatureToggle}
+                theme={theme}
+              />
+              <ThemeToggle 
+                theme={theme}
+                onToggle={handleThemeToggle}
               />
             </div>
           )}
@@ -144,12 +167,14 @@ function App() {
               <WeatherCard 
                 weather={weatherData} 
                 temperatureUnit={temperatureUnit}
+                theme={theme}
               />
               
               {forecastData && forecastData.length > 0 && (
                 <ForecastSection 
                   forecasts={forecastData}
                   temperatureUnit={temperatureUnit}
+                  theme={theme}
                 />
               )}
             </>
@@ -157,7 +182,7 @@ function App() {
         </main>
 
         <footer className="text-center mt-12 text-white/80">
-          <p>Day 5 of 8 | Recent Searches & Local Storage Added! 💾</p>
+          <p>Day 6 of 8 | Theme Customization & Dynamic Backgrounds! 🎨</p>
         </footer>
       </div>
     </div>
