@@ -47,3 +47,32 @@ export const processForecastData = (forecastList) => {
       windSpeed: (day.windSpeed.reduce((a, b) => a + b) / day.windSpeed.length).toFixed(1)
     }));
 };
+
+export const formatTime = (timestamp, timezone) => {
+  const date = new Date((timestamp + timezone) * 1000);
+  return date.toLocaleTimeString('en-US', { 
+    hour: '2-digit', 
+    minute: '2-digit',
+    timeZone: 'UTC'
+  });
+};
+
+export const formatVisibility = (visibility) => {
+  const km = visibility / 1000;
+  return km.toFixed(1);
+};
+
+export const getWindDirection = (degree) => {
+  const directions = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW'];
+  const index = Math.round(degree / 22.5) % 16;
+  return directions[index];
+};
+
+export const getAQILevel = (aqi) => {
+  if (aqi <= 50) return { level: 'Good', color: 'text-green-500' };
+  if (aqi <= 100) return { level: 'Moderate', color: 'text-yellow-500' };
+  if (aqi <= 150) return { level: 'Unhealthy for Sensitive', color: 'text-orange-500' };
+  if (aqi <= 200) return { level: 'Unhealthy', color: 'text-red-500' };
+  if (aqi <= 300) return { level: 'Very Unhealthy', color: 'text-purple-500' };
+  return { level: 'Hazardous', color: 'text-red-700' };
+};

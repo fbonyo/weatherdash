@@ -3,6 +3,8 @@ import { Cloud } from 'lucide-react';
 import SearchBar from './components/SearchBar';
 import WeatherCard from './components/WeatherCard';
 import ForecastSection from './components/ForecastSection';
+import AdditionalDetails from './components/AdditionalDetails';
+import WeatherAlerts from './components/WeatherAlerts';
 import RecentSearches from './components/RecentSearches';
 import ErrorMessage from './components/ErrorMessage';
 import LoadingSpinner from './components/LoadingSpinner';
@@ -164,11 +166,15 @@ function App() {
           
           {weatherData && !loading && (
             <>
+              <WeatherAlerts weather={weatherData} theme={theme} />
+              
               <WeatherCard 
                 weather={weatherData} 
                 temperatureUnit={temperatureUnit}
                 theme={theme}
               />
+              
+              <AdditionalDetails weather={weatherData} theme={theme} />
               
               {forecastData && forecastData.length > 0 && (
                 <ForecastSection 
@@ -182,7 +188,7 @@ function App() {
         </main>
 
         <footer className="text-center mt-12 text-white/80">
-          <p>Day 6 of 8 | Theme Customization & Dynamic Backgrounds! 🎨</p>
+          <p>Day 7 of 8 | Additional Details & Weather Alerts! 🌟</p>
         </footer>
       </div>
     </div>
