@@ -188,7 +188,7 @@ function App() {
         </main>
 
         <footer className="text-center mt-12 text-white/80">
-          <p>Day 7 of 8 | Additional Details & Weather Alerts! 🌟</p>
+          <p className="text-sm">Weather Dash Kenya © 2025</p>
         </footer>
       </div>
     </div>
